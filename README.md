@@ -1,27 +1,78 @@
-﻿# Supply Chain Analytics Dashboard (`supply-chain-`)
+﻿# Supply Chain Analytics Dashboard (`supply-chain-`) — Power BI Star-Schema Intelligence
 
-An end-to-end Business Intelligence (BI) and logistics analytics solution built in **Power BI** (`supply chain.pbix`) using a normalized star-schema CSV data model (`Country.csv`, `Product.csv`, `SalesPerson.csv`, `Shipment.csv`).
+## Table of Contents
+- [Executive Summary & Business Utility](#executive-summary--business-utility)
+- [System Architecture & Layers](#system-architecture--layers)
+- [Data Model & Star Schema](#data-model--star-schema)
+- [BI Metrics & Analytical Capabilities](#bi-metrics--analytical-capabilities)
+- [Getting Started](#getting-started)
+- [Business Value, ROI & Growth Opportunities](#business-value-roi--growth-opportunities)
 
 ---
 
-## 1. Executive Summary & Purpose
-`supply-chain-` transforms raw shipment records into executive-ready visibility across global logistics, product velocity, and sales representative performance.
+## Executive Summary & Business Utility
+`supply-chain-` is an executive Business Intelligence solution built in **Power BI** (`supply chain.pbix`) on a **5,000-row transactional shipment dataset** (`Shipment.csv`) joined with normalized dimension tables (`Country.csv`, `Product.csv`, `SalesPerson.csv`). It provides operations and sales leadership with immediate visibility into delivery SLA performance, regional revenue, product unit margins, and salesperson productivity.
 
-## 2. Data Model & BI Layers
+---
+
+## System Architecture & Layers
 ```mermaid
 flowchart LR
-    C["Country.csv (Dim)"] --> S["Shipment.csv (Fact)"]
-    P["Product.csv (Dim)"] --> S
-    SP["SalesPerson.csv (Dim)"] --> S
-    S --> PBI["Power BI Report (supply chain.pbix)"]
+    subgraph L1["1. Source Data Layer (CSVs)"]
+        C["Country.csv (10 regions)"]
+        P["Product.csv (10 SKUs)"]
+        SP["SalesPerson.csv (25 reps)"]
+        S["Shipment.csv (5,000 shipments)"]
+    end
+    subgraph L2["2. Semantic & DAX Layer"]
+        Model["Power BI Star Schema & Measures (supply chain.pbix)"]
+    end
+    subgraph L3["3. Presentation & Executive BI Layer"]
+        Dash["Interactive Power BI Dashboards"]
+    end
+
+    C & P & SP --> S --> Model --> Dash
 ```
 
 | Layer | Artifact | Role |
 | :--- | :--- | :--- |
-| **Dimension Tables** | `Country.csv`, `Product.csv`, `SalesPerson.csv` | Geographic regions, product catalog, and sales team attributes |
-| **Fact Table** | `Shipment.csv` | Transactional shipment quantities, dates, and fulfillment metrics |
-| **Semantic & Visual Layer** | `supply chain.pbix` | DAX measures, relationships, and interactive Power BI dashboards |
+| **Dimension Layer** | `Country.csv`, `Product.csv`, `SalesPerson.csv` | Geographic markets, product cost catalog, and sales team roster |
+| **Fact Layer** | `Shipment.csv` | 5,000 shipment transactions with status, delivery date, and sales amounts |
+| **BI & DAX Layer** | `supply chain.pbix` | Relational star-schema model, KPI calculations, and visual drill-downs |
 
-## 3. Business Value & Growth Opportunities
-- **Inventory & Route Optimization**: Identifies underperforming regions, bottleneck corridors, and top-performing sales reps.
-- **Live ERP Integration**: Connect the star schema directly to a transactional ERP database (such as `sotexerp`) via scheduled Power BI Gateway refreshes to replace static CSVs with near-real-time executive reporting.
+---
+
+## Data Model & Star Schema
+```mermaid
+erDiagram
+    COUNTRY ||--o{ SHIPMENT : ships_to
+    PRODUCT ||--o{ SHIPMENT : shipped_as
+    SALESPERSON ||--o{ SHIPMENT : closes
+```
+
+| File | Rows | Columns |
+| :--- | :--- | :--- |
+| `Shipment.csv` | 5,000 | `Shipment ID`, `Sales Person`, `Geography`, `Product`, `Date`, `Sales`, `Status`, `Delivered On` |
+| `Country.csv` | 10 | `Geography`, `Region` |
+| `Product.csv` | 10 | `Product`, `Category`, `Cost per Box` |
+| `SalesPerson.csv` | 25 | `Sales Person`, `Team`, `Picture` |
+
+---
+
+## BI Metrics & Analytical Capabilities
+- **Gross Margin & Costing**: Join `Shipment.Sales` against `Product[Cost per Box]` to track net profitability by product category and region.
+- **Delivery SLA & Status Monitoring**: Track `Status` and `Delivered On` vs. `Date` to spot late corridors.
+- **Sales Leaderboard**: Compare rep and team performance with photo-enriched cards (`SalesPerson.Picture`).
+
+---
+
+## Getting Started
+1. Clone the repository: `git clone https://github.com/islamsamyy/supply-chain-.git`
+2. Open `supply chain.pbix` in **Power BI Desktop**.
+3. Update CSV data source paths if refreshing locally.
+
+---
+
+## Business Value, ROI & Growth Opportunities
+- **Logistics Cost & SLA Optimization**: Pinpoints high-delay geographies and low-margin SKUs to cut freight waste.
+- **Live ERP Gateway Upgrade**: Connect the star schema directly to `sotexerp` or `shamalelhejaz` Postgres views via Power BI Gateway for automated daily executive refreshes.
